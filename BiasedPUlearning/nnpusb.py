@@ -11,7 +11,7 @@ import chainer.functions as F
 import chainer.links as L
 
 
-class PUNN:
+class nnPU:
     def __init__(self, pi):
         self.pi = pi
         self.loss_func = lambda g: self.loss(g)

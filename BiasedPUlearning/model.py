@@ -7,7 +7,7 @@ from chainer import Link, Chain, ChainList
 import chainer.functions as F
 import chainer.links as L
 
-class normalNN(Chain):
+class ThreeLayerPerceptron(Chain):
     def __init__(self, dim):
         super().__init__(
             l1=L.Linear(dim, 100),

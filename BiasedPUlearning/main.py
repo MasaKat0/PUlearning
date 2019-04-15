@@ -1,32 +1,27 @@
 import numpy as np
 import pandas as pd
 import six
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LogisticRegression
 
-from dataset2 import make_data2
-from dataset3 import make_data3
-from dataset4 import *
-from pubp_nn import PUNN
+from dataset_for_nnPU import *
 from model import *
-from train2 import * 
+from train import * 
 
 import chainer.cuda
 import chainer
 
 def experiment():
     ite = 100
-    pdata = 1000
+    pdata = 100
     epoch = 100
     batchsize = 1000
 
     seed = 2018
 
-    gpu = True
+    gpu = False
 
     loss_pu = np.zeros((ite, epoch))
     est_error_pu = np.zeros((ite, epoch))
-    est_error_pubp = np.zeros((ite, epoch))
+    est_error_pusb = np.zeros((ite, epoch))
 
     for i in range(ite):
         np.random.seed(seed)
@@ -43,7 +38,7 @@ def experiment():
         dim = x.shape[1]
         print(x.shape)
 
-        model = MultiLayerPerceptron(dim)
+        model = ThreeLayerPerceptron(dim)
         optimizer = optimizers.Adam(1e-5)
         optimizer.setup(model)
 
@@ -64,8 +59,7 @@ def experiment():
             X = Variable(xp.array(x_p[j:j + batchsize], xp.float32))
             g = chainer.cuda.to_cpu(model(X).data).T[0]
             xp_prob = np.append(xp_prob, 1/(1+np.exp(-g)), axis=0)
-        xp_prob /= np.mean(xp_prob)
-        xp_prob = xp_prob
+        xp_prob = xp_prob**10
         xp_prob /= np.max(xp_prob)
         print(xp_prob)
         rand = np.random.uniform(size=len(x_p))
@@ -84,7 +78,7 @@ def experiment():
         print(x_test.shape)
         print(t_test.shape)
 
-        model = MultiLayerPerceptron(dim)
+        model = ThreeLayerPerceptron(dim)
         optimizer = optimizers.Adam(alpha=1e-5)
         optimizer.setup(model)
         optimizer.add_hook(chainer.optimizer.WeightDecay(0.005))
@@ -97,21 +91,25 @@ def experiment():
         else:
             xp = np
 
-        model, optimizer, loss_list, acc1, acc2 = train_pu(x_train, t_train, x_test, t_test, pi, epoch, model, optimizer, batchsize, xp)
-
+        model, optimizer, loss_list, acc0, acc1 = train_pu(x_train, t_train, x_test, t_test, pi, epoch, model, optimizer, batchsize, xp)
+        #precison0, precison1, recall0, recall1
 
         loss_pu[i] = loss_list
-        est_error_pu[i] = acc1
-        est_error_pubp[i] = acc2
+        est_error_pu[i] = acc0
+        est_error_pusb[i] = acc1
 
+        print(acc0[-1])
         print(acc1[-1])
-        print(acc2[-1])
 
         seed += 1
         
-        np.savetxt('loss_pu_mnist_%d.csv'%seed, loss_pu, delimiter=',')
-        np.savetxt('est_error_pu_mnist_%d.csv'%seed, est_error_pu, delimiter=',')
-        np.savetxt('est_error_pubp_mnist_%d.csv'%seed, est_error_pubp, delimiter=',')
+        np.savetxt('result/loss_pu_mnist.csv', loss_pu, delimiter=',')
+        np.savetxt('result/error_pu_mnist.csv', est_error_pu, delimiter=',')
+        np.savetxt('result/error_pubp_mnist.csv', est_error_pusb, delimiter=',')
+        np.savetxt('result/recall_pu_mnist.csv', est_recall_pu, delimiter=',')
+        np.savetxt('result/precision_pu_mnist.csv', est_precision_pu, delimiter=',')
+        np.savetxt('result/est_recall_pusb_mnist.csv', est_recall_pusb, delimiter=',')
+        np.savetxt('result/est_precision_pusb_mnist.csv', est_precision_pusb, delimiter=',')
 
 
     loss_pu_mean = np.mean(loss_pu, axis=1)
