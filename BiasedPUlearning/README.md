@@ -1,3 +1,2 @@
-- [PUSB]((https://github.com/MasaKat0/PUlearning/tree/master/BiasedPUlearning/PUSB)): Table2
-- [nnPUSB]((https://github.com/MasaKat0/PUlearning/tree/master/BiasedPUlearning/nnPUSB)
-): Figure2-6
+- [PUSB](https://github.com/MasaKat0/PUlearning/tree/master/BiasedPUlearning/PUSB): Table2
+- [nnPUSB](https://github.com/MasaKat0/PUlearning/tree/master/BiasedPUlearning/nnPUSB): Figure2-6
